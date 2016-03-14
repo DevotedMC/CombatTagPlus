@@ -89,7 +89,7 @@ public final class BarUtils {
                     bar.setTitle(message);
                 }
                 bar.addPlayer(player);
-                bar.setProgress(100);
+                bar.setProgress(percent / 100.0);
                 bar.setVisible(true);
             }
 
