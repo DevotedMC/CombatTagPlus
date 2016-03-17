@@ -1,7 +1,6 @@
 package net.minelink.ctplus;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -195,6 +194,10 @@ public final class Settings {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
+    public boolean resetTagOnPearl() {
+        return plugin.getConfig().getBoolean("reset-tag-on-pearl");
+    }
+
     public boolean playEffect() {
         return plugin.getConfig().getBoolean("play-effect");
     }
@@ -238,6 +241,10 @@ public final class Settings {
         return plugin.getConfig().getBoolean("only-tag-attacker");
     }
 
+    public boolean disableSelfTagging() {
+        return plugin.getConfig().getBoolean("disable-self-tagging");
+    }
+
     public boolean disableBlockEdit() {
         return plugin.getConfig().getBoolean("disable-block-edit");
     }
@@ -278,6 +285,15 @@ public final class Settings {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
+    public boolean disableCrafting() {
+        return plugin.getConfig().getBoolean("disable-crafting");
+    }
+
+    public String getDisableCraftingMessage() {
+        String message = plugin.getConfig().getString("disable-crafting-message", "");
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
     public int getNpcDespawnTime() {
         return plugin.getConfig().getInt("npc-despawn-time", 60);
     }
@@ -296,6 +312,11 @@ public final class Settings {
 
     public String getKillMessage() {
         String message = plugin.getConfig().getString("kill-message", "");
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    public String getKillMessageItem() {
+        String message = plugin.getConfig().getString("kill-message-item", "");
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 

@@ -1,5 +1,5 @@
 # Don't touch this. It's here to determine whether you need to refresh your config.
-config-version: 15
+config-version: 19
 
 # The duration in seconds that both the attacker and victim should be tagged in combat.
 tag-duration: 15
@@ -9,6 +9,9 @@ tag-message: '&cYou have engaged in combat. Type &b/ct &cto check your timer.'
 
 # This message is displayed the player when their tag expires. Set this to '' to display nothing.
 untag-message: '&aYou are no longer in combat.'
+
+# Resets the tag time when the tagged player throws an enderpearl.
+reset-tag-on-pearl: false
 
 # Plays an effect when a player logs off during combat.
 play-effect: true
@@ -40,6 +43,9 @@ untag-on-kick: false
 # Only the attacker will be tagged if this is set to true.
 only-tag-attacker: false
 
+# Disables players being able to tag themselves.
+disable-self-tagging: true
+
 # Prevent block editing while tagged.
 disable-block-edit: false
 
@@ -67,6 +73,12 @@ disable-teleportation: false
 # This message is displayed when a player attempts to teleport within pvp if teleportation is disabled in pvp.
 disable-teleportation-message: '&bTeleportation &cis disabled in combat.'
 
+# Prevents tagged players from crafting during combat.
+disable-crafting: false
+
+# This message is displayed when a player attempts to craft an item while in combat if crafting is disabled.
+disable-crafting-message: '&bCrafting &cis disabled in combat.'
+
 # The duration in seconds to despawn the combat logger's NPC if it hasn't died.
 npc-despawn-time: 60
 
@@ -77,7 +89,10 @@ generate-random-name: true
 random-name-prefix: PvPLogger
 
 # This message is displayed when a player is killed by another player. Set this to '' to display nothing.
-kill-message: '&8&l>> &c{victim} was slain by {attacker} with a(n) {item}'
+kill-message: '&8&l>> &c{victim} was slain by {attacker}'
+
+# Same as above, this is displayed when a player is killed by another player with an item in hand.
+kill-message-item: '&8&l>> &c{victim} was slain by {attacker} with a {item}'
 
 # Enables BarAPI integration for displaying a boss bar counting down with the remaining tag time.
 barapi: true
@@ -186,6 +201,18 @@ disabled-commands:
   - 'plotme:plot'
   - 'plotme:p'
 
+  # floAuction
+  - auction
+  - auc
+  - sauction
+  - sauc
+  - bid
+  - 'floauction:auction'
+  - 'floauction:auc'
+  - 'floauction:sauction'
+  - 'floauction:sauc'
+  - 'floauction:bid'
+
   # Essentials
   - spawn
   - home
@@ -213,6 +240,7 @@ disabled-commands:
   - enderchest
   - endersee
   - echest
+  - sell
   - ehome
   - ehomes
   - ewarp
@@ -237,6 +265,7 @@ disabled-commands:
   - eenderchest
   - eechest
   - eendersee
+  - esell
   - 'essentials:spawn'
   - 'essentials:home'
   - 'essentials:homes'
@@ -262,6 +291,7 @@ disabled-commands:
   - 'essentials:enderchest'
   - 'essentials:endersee'
   - 'essentials:echest'
+  - 'essentials:sell'
   - 'essentials:espawn'
   - 'essentials:ehome'
   - 'essentials:ehomes'
@@ -287,3 +317,4 @@ disabled-commands:
   - 'essentials:eenderchest'
   - 'essentials:eechest'
   - 'essentials:eendersee'
+  - 'essentials:esell'

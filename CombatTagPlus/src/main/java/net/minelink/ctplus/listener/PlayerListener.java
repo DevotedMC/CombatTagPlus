@@ -4,8 +4,8 @@ import net.minelink.ctplus.CombatTagPlus;
 import net.minelink.ctplus.Tag;
 import net.minelink.ctplus.event.PlayerCombatTagEvent;
 import net.minelink.ctplus.task.TagUpdateTask;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,13 +15,15 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -62,9 +64,10 @@ public final class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void broadcastKill(PlayerDeathEvent event) {
-        // Do nothing with kill message is blank
+        // Do nothing if both kill messages are blank
         String message = plugin.getSettings().getKillMessage();
-        if (message.isEmpty()) return;
+        String messageItem = plugin.getSettings().getKillMessageItem();
+        if (message.isEmpty() && messageItem.isEmpty()) return;
 
         Player player = event.getEntity();
         UUID playerId = player.getUniqueId();
@@ -93,13 +96,21 @@ public final class PlayerListener implements Listener {
             attacker = tag.getVictimName();
         }
 
+        // Use item-based kill message?
+        ItemStack item = p.getItemInHand();
+        if (item.getType() != Material.AIR) {
+            String name = WordUtils.capitalizeFully(item.getType().name().replace("_", " "));
+            message = messageItem.replace("{item}", name);
+        }
+
+        // Insert victim and attacker names into message
+        message = message.replace("{victim}", victim).replace("{attacker}", attacker);
+
         // Broadcast kill message
-        String item = p.getItemInHand().getType().toString().toLowerCase().replace("_", " ");
-        message = message.replace("{victim}", victim).replace("{attacker}", attacker).replace("{item}", item);
         Bukkit.broadcast(message, "ctplus.notify.kill");
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void disableCommand(PlayerCommandPreprocessEvent event) {
         // Do nothing if player has bypass permission
         Player player = event.getPlayer();
@@ -123,7 +134,7 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void disableBlockEdit(BlockBreakEvent event) {
         // Do nothing if block edits are allowed in combat
         if (!plugin.getSettings().disableBlockEdit()) return;
@@ -142,7 +153,7 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void disableBlockEdit(BlockPlaceEvent event) {
         // Do nothing if block edits are allowed in combat
         if (!plugin.getSettings().disableBlockEdit()) return;
@@ -161,7 +172,7 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void disableEnderpearls(PlayerInteractEvent event) {
         // Do nothing if enderpearls are allowed in combat
         if (!plugin.getSettings().disableEnderpearls()) return;
@@ -187,7 +198,7 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void disableFlying(PlayerCombatTagEvent event) {
         // Do nothing if flying is allowed in combat
         if (!plugin.getSettings().disableFlying()) return;
@@ -213,7 +224,7 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void disableFlying(PlayerToggleFlightEvent event) {
         // Do nothing if flying is allowed in combat
         if (!plugin.getSettings().disableFlying()) return;
@@ -238,15 +249,18 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void disableTeleportation(PlayerTeleportEvent event) {
         // Do nothing if teleportation is allowed in combat
         if (!plugin.getSettings().disableTeleportation()) return;
 
-        // Do nothing if teleportation caused by enderpearl or plugin
-        PlayerTeleportEvent.TeleportCause cause = event.getCause();
-        if (cause == PlayerTeleportEvent.TeleportCause.ENDER_PEARL ||
-                cause == PlayerTeleportEvent.TeleportCause.PLUGIN) return;
+        // Do nothing if teleportation caused by enderpearl, plugin or unknown cause
+        switch (event.getCause()) {
+            case ENDER_PEARL:
+            case PLUGIN:
+            case UNKNOWN:
+                return;
+        }
 
         // Do nothing if player isn't even combat tagged
         Player player = event.getPlayer();
@@ -262,22 +276,25 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void denySafeZoneEntry(PlayerMoveEvent event) {
-        // Do nothing if check is not active
-        if (!plugin.getSettings().denySafezone()) return;
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void disableCrafting(CraftItemEvent event) {
+        // Do nothing if teleportation is allowed in combat
+        if (!plugin.getSettings().disableCrafting()) return;
 
-        // Do nothing if player's X/Y/Z hasn't changed
-        Location t = event.getTo();
-        Location f = event.getFrom();
-        if (Double.compare(t.getX(), f.getX()) == 0 && Double.compare(t.getY(), f.getY()) == 0 &&
-                Double.compare(t.getZ(), f.getZ()) == 0) {
-            return;
-        }
+        // Do nothing if clicker isn't a player
+        if (!(event.getWhoClicked() instanceof Player)) return;
 
-        if (plugin.getTagManager().isTagged(event.getPlayer().getUniqueId()) &&
-                !plugin.getHookManager().isPvpEnabledAt(t) && plugin.getHookManager().isPvpEnabledAt(f)) {
-            event.setCancelled(true);
+        // Do nothing if player isn't even combat tagged
+        Player player = (Player) event.getWhoClicked();
+        if (!plugin.getTagManager().isTagged(player.getUniqueId())) return;
+
+        // Do nothing if player has bypass permission
+        if (player.hasPermission("ctplus.bypass.craft")) return;
+
+        // Cancel the event and inform the player
+        event.setCancelled(true);
+        if (!plugin.getSettings().getDisableCraftingMessage().isEmpty()) {
+            player.sendMessage(plugin.getSettings().getDisableCraftingMessage());
         }
     }
 

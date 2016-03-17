@@ -27,8 +27,7 @@ public final class NpcPlayerHelperImpl implements NpcPlayerHelper {
     @Override
     public Player spawn(Player player) {
         NpcPlayer npcPlayer = NpcPlayer.valueOf(player);
-        MinecraftServer minecraftServer = MinecraftServer.getServer();
-        WorldServer worldServer = minecraftServer.getWorldServer(npcPlayer.dimension);
+        WorldServer worldServer = ((CraftWorld) player.getWorld()).getHandle();
         Location l = player.getLocation();
 
         npcPlayer.spawnIn(worldServer);
@@ -37,7 +36,7 @@ public final class NpcPlayerHelperImpl implements NpcPlayerHelper {
         npcPlayer.invulnerableTicks = 0;
 
         worldServer.addEntity(npcPlayer);
-        minecraftServer.getPlayerList().a(npcPlayer, null);
+        worldServer.getPlayerChunkMap().addPlayer(npcPlayer);
 
         return npcPlayer.getBukkitEntity();
     }
@@ -50,7 +49,9 @@ public final class NpcPlayerHelperImpl implements NpcPlayerHelper {
             throw new IllegalArgumentException();
         }
 
-        ((CraftWorld) player.getLocation().getWorld()).getHandle().removeEntity(entity);
+        WorldServer worldServer = MinecraftServer.getServer().getWorldServer(entity.dimension);
+        worldServer.removeEntity(entity);
+        worldServer.getPlayerChunkMap().removePlayer(entity);
     }
 
     @Override
@@ -88,7 +89,8 @@ public final class NpcPlayerHelperImpl implements NpcPlayerHelper {
                 if (!(o instanceof EntityPlayer)) continue;
 
                 EntityPlayer p = (EntityPlayer) o;
-                if (l.distanceSquared(p.getBukkitEntity().getLocation()) <= rangeSquared) {
+                Location loc = p.getBukkitEntity().getLocation();
+                if (l.getWorld().equals(loc.getWorld()) && l.distanceSquared(loc) <= rangeSquared) {
                     p.playerConnection.sendPacket(packet);
                 }
             }
@@ -108,7 +110,7 @@ public final class NpcPlayerHelperImpl implements NpcPlayerHelper {
         Player p = Bukkit.getPlayer(identity.getId());
         if (p != null && p.isOnline()) return;
 
-        WorldNBTStorage worldStorage = (WorldNBTStorage) npcPlayer.getWorld().getDataManager();
+        WorldNBTStorage worldStorage = (WorldNBTStorage) ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().getDataManager();
         NBTTagCompound playerNbt = worldStorage.getPlayerData(identity.getId().toString());
         if (playerNbt == null) return;
 

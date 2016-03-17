@@ -52,6 +52,7 @@ public final class NpcManager {
         entity.addPotionEffects(player.getActivePotionEffects());
 
         // Should fix some visual glitches, such as health bars displaying zero
+        // TODO: Find another solution. This one causes the player to be added to the NMS PlayerList, that's not ideal.
         entity.teleport(player, PlayerTeleportEvent.TeleportCause.PLUGIN);
 
         // Send equipment packets to nearby players
@@ -68,12 +69,16 @@ public final class NpcManager {
     }
 
     public void despawn(Npc npc) {
+        despawn(npc, NpcDespawnReason.DESPAWN);
+    }
+
+    public void despawn(Npc npc, NpcDespawnReason reason) {
         // Do nothing if NPC isn't spawned or if it's a different NPC
         Npc other = getSpawnedNpc(npc.getIdentity().getId());
         if (other == null || other != npc) return;
 
         // Call NPC despawn event
-        NpcDespawnEvent event = new NpcDespawnEvent(npc, NpcDespawnReason.DESPAWN);
+        NpcDespawnEvent event = new NpcDespawnEvent(npc, reason);
         Bukkit.getPluginManager().callEvent(event);
 
         // Remove the NPC entity from the world
