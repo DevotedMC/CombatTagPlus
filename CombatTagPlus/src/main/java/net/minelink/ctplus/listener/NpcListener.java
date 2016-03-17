@@ -29,12 +29,19 @@ public final class NpcListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void spawnNpc(PlayerQuitEvent event) {
         // Do nothing if player is not combat tagged and NPCs only spawn if tagged
         Player player = event.getPlayer();
+
+        // Do nothing if player is dead
+        if (player.isDead()) return;
+
         boolean isTagged = plugin.getTagManager().isTagged(player.getUniqueId());
         if (!isTagged && !plugin.getSettings().alwaysSpawn()) return;
+
+        // Do nothing if player is not within enabled world
+        if (plugin.getSettings().getDisabledWorlds().contains(player.getWorld().getName())) return;
 
         // Do nothing if a player logs off in combat in a WorldGuard protected region
         if (!plugin.getHookManager().isPvpEnabledAt(player.getLocation())) return;
@@ -91,7 +98,7 @@ public final class NpcListener implements Listener {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                plugin.getNpcManager().despawn(npc);
+                plugin.getNpcManager().despawn(npc, NpcDespawnReason.DEATH);
                 Bukkit.getPluginManager().callEvent(new NpcDespawnEvent(npc, NpcDespawnReason.DEATH));
             }
         });
