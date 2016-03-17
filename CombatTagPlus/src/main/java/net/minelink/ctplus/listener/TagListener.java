@@ -197,7 +197,7 @@ public final class TagListener implements Listener {
     public void sendTagMessage(PlayerCombatTagEvent event) {
         // Do nothing if tag message is blank
         String message = plugin.getSettings().getTagMessage();
-        if (message.isEmpty()) { return };
+        if (message.isEmpty()) { return; }
 
         Player attacker = event.getAttacker();
         Player victim = event.getVictim();
