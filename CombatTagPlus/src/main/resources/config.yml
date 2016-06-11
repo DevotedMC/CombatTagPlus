@@ -70,6 +70,9 @@ disable-flying-message: '&bFlying &cis disabled in combat.'
 # Prevent tagged players from teleporting during combat.
 disable-teleportation: false
 
+# Optionally untag a player if tagged and teleportation is caused by PLUGIN or UNKNOWN
+untag-on-plugin-teleport: false
+
 # This message is displayed when a player attempts to teleport within pvp if teleportation is disabled in pvp.
 disable-teleportation-message: '&bTeleportation &cis disabled in combat.'
 
