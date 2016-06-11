@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -58,17 +59,8 @@ public final class NpcListener implements Listener {
             return;
         }
 
-        // Do nothing if NPC already exists
-        final Npc npc = plugin.getNpcManager().spawn(player);
-        if (npc == null) return;
-
-        // Despawn NPC after npc-despawn-time has elapsed in ticks
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                plugin.getNpcManager().despawn(npc);
-            }
-        }, plugin.getSettings().getNpcDespawnTicks());
+        // Spawn a new NPC
+        plugin.getNpcManager().spawn(player);
     }
 
     @EventHandler
@@ -99,9 +91,29 @@ public final class NpcListener implements Listener {
             @Override
             public void run() {
                 plugin.getNpcManager().despawn(npc, NpcDespawnReason.DEATH);
-                Bukkit.getPluginManager().callEvent(new NpcDespawnEvent(npc, NpcDespawnReason.DEATH));
             }
         });
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void updateDespawnTime(EntityDamageByEntityEvent event) {
+        // Do nothing if we are not to update NPC despawn time on hit
+        if (!plugin.getSettings().resetDespawnTimeOnHit()) return;
+
+        // Do nothing if entity damaged is not a player
+        if (!(event.getEntity() instanceof Player)) return;
+
+        // Do nothing if player damaged is not a NPC
+        Player player = (Player) event.getEntity();
+        if (!plugin.getNpcPlayerHelper().isNpc(player)) return;
+
+        // Update the NPC despawn time
+        UUID npcId = plugin.getNpcPlayerHelper().getIdentity(player).getId();
+        Npc npc = plugin.getNpcManager().getSpawnedNpc(npcId);
+        if (plugin.getNpcManager().hasDespawnTask(npc)) {
+            long despawnTime = System.currentTimeMillis() + plugin.getSettings().getNpcDespawnMillis();
+            plugin.getNpcManager().getDespawnTask(npc).setTime(despawnTime);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
