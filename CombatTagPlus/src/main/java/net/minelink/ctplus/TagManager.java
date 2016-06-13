@@ -42,6 +42,10 @@ public final class TagManager {
         tag(victim, attacker, EnumSet.of(Flag.TAG_VICTIM, Flag.TAG_ATTACKER));
     }
     
+    public void tag(Player victim, Player attacker, double durationMultiplier) {
+        tag(victim, attacker, durationMultiplier, EnumSet.of(Flag.TAG_VICTIM, Flag.TAG_ATTACKER));
+    }
+    
     public void tag(Player victim, Player attacker, double tagDurationMultiplier, Set <Flag> flags) {
         NpcPlayerHelper helper = plugin.getNpcPlayerHelper();
 
