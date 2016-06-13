@@ -395,4 +395,7 @@ public final class Settings {
     	return plugin.getConfig().getDouble("loginTagMultiplier");
     }
 
+    public boolean untagOnPluginTeleport() {
+        return plugin.getConfig().getBoolean("untag-on-plugin-teleport");
+    }
 }
