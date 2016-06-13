@@ -44,6 +44,10 @@ public final class PlayerListener implements Listener {
 
         // Add player to cache
         plugin.getPlayerCache().addPlayer(player);
+        
+        if (plugin.getSettings().tagOnLogin()) {
+        	plugin.getTagManager().tag(event.getPlayer(), null);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

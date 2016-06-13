@@ -386,5 +386,13 @@ public final class Settings {
     public List<String> getDisabledCommands() {
         return plugin.getConfig().getStringList("disabled-commands");
     }
+    
+    public boolean tagOnLogin() {
+    	return plugin.getConfig().getBoolean("tagOnLogin", false);
+    }
+    
+    public double loginTagMultiplier() {
+    	return plugin.getConfig().getDouble("loginTagMultiplier");
+    }
 
 }

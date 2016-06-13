@@ -41,8 +41,8 @@ public final class TagManager {
     public void tag(Player victim, Player attacker) {
         tag(victim, attacker, EnumSet.of(Flag.TAG_VICTIM, Flag.TAG_ATTACKER));
     }
-
-    public void tag(Player victim, Player attacker, Set<Flag> flags) {
+    
+    public void tag(Player victim, Player attacker, double tagDurationMultiplier, Set <Flag> flags) {
         NpcPlayerHelper helper = plugin.getNpcPlayerHelper();
 
         // Determine victim identity
@@ -77,7 +77,7 @@ public final class TagManager {
         if (victim == null && attacker == null) return;
 
         // Call tag event
-        int tagDuration = plugin.getSettings().getTagDuration();
+        int tagDuration = (int) ((double)plugin.getSettings().getTagDuration() * tagDurationMultiplier);
         PlayerCombatTagEvent event = new PlayerCombatTagEvent(victim, attacker, tagDuration);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -97,6 +97,10 @@ public final class TagManager {
         if (attacker != null && flags.contains(Flag.TAG_ATTACKER)) {
             tags.put(attackerId, tag);
         }
+    }
+
+    public void tag(Player victim, Player attacker, Set<Flag> flags) {
+    	tag(victim, attacker, 1.0, flags);
     }
 
     public boolean untag(UUID playerId) {
