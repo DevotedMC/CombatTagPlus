@@ -124,12 +124,6 @@ public final class CombatTagPlus extends JavaPlugin {
                 SafeLogoutTask.purgeFinished();
             }
         }, 3600, 3600);
-
-        // Start metrics
-        try {
-            MetricsLite metrics = new MetricsLite(this);
-            metrics.start();
-        } catch (IOException ignore) {}
     }
 
     @Override
