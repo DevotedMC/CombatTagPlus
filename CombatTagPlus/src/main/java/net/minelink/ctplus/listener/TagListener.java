@@ -216,7 +216,8 @@ public final class TagListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void sendTagMessage(PlayerCombatTagEvent event) {
         // Do nothing if tag message is blank
-        String message = plugin.getSettings().getTagMessage();
+        String messageAttacker = plugin.getSettings().getAttackerTagMessage();
+        String messageVictim = plugin.getSettings().getVictimTagMessage();
         if (message.isEmpty()) { return; }
 
         Player attacker = event.getAttacker();
@@ -233,6 +234,7 @@ public final class TagListener implements Listener {
             attacker.sendMessage(message.replace("{opponent}", (victim != null ? victim.getName() : "someone")));
         }
     }
+
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateTag(PlayerCombatTagEvent event) {
