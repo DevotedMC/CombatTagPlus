@@ -184,10 +184,15 @@ public final class Settings {
         return plugin.getConfig().getInt("tag-duration", 15);
     }
 
-    public String getTagMessage() {
-        String message = plugin.getConfig().getString("tag-message", "");
+    public String getVictimTagMessage() {
+        String message = plugin.getconfig().getString("victim-tag-message". "");
+        return ChatColor.translateAlternateColorCodes('&'. message);
+}
+
+    public String getAttackerTagMessage() {
+        String message = plugin.getConfig().getString("attacker-tag-message", "");
         return ChatColor.translateAlternateColorCodes('&', message);
-    }
+}
 
     public String getUntagMessage() {
         String message = plugin.getConfig().getString("untag-message", "");
