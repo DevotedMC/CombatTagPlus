@@ -54,6 +54,7 @@ public final class NpcManager {
         entity.getInventory().setContents(player.getInventory().getContents());
         entity.getInventory().setArmorContents(player.getInventory().getArmorContents());
         entity.addPotionEffects(player.getActivePotionEffects());
+        entity.setMetadata("NPC", new FixedMetadataValue(plugin, true));
 
         // Should fix some visual glitches, such as health bars displaying zero
         // TODO: Find another solution. This one causes the player to be added to the NMS PlayerList, that's not ideal.
@@ -61,8 +62,6 @@ public final class NpcManager {
 
         // Send equipment packets to nearby players
         plugin.getNpcPlayerHelper().updateEquipment(entity);
-
-        entity.setMetadata("NPC", new FixedMetadataValue(plugin, true));
 
         // Play a nice little effect indicating the NPC was spawned
         if (plugin.getSettings().playEffect()) {
